@@ -1037,6 +1037,7 @@ handle_srv6(struct __ctx_buff *ctx)
  * managed by Cilium (e.g., eth0). This program is only attached when:
  * - the host firewall is enabled, or
  * - BPF NodePort is enabled
+ * - WireGuard's host-to-host encryption is enabled
  */
 __section("from-netdev")
 int cil_from_netdev(struct __ctx_buff *ctx)
