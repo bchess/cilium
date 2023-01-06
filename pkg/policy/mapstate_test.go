@@ -730,7 +730,7 @@ func (ds *PolicyTestSuite) TestMapState_DenyPreferredInsert(c *check.C) {
 		},
 	}
 	for _, tt := range tests {
-		tt.keys.DenyPreferredInsert(tt.args.key, tt.args.entry)
+		tt.keys.DenyPreferredInsert(tt.args.key, tt.args.entry, nil)
 		c.Assert(tt.keys, checker.DeepEquals, tt.want, check.Commentf(tt.name))
 	}
 }

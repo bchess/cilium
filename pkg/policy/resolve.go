@@ -168,7 +168,7 @@ func (p *EndpointPolicy) computeDirectionL4PolicyMapEntries(policyMapState MapSt
 	for _, filter := range l4PolicyMap {
 		lookupDone := false
 		proxyport := uint16(0)
-		keysFromFilter := filter.ToMapState(p.PolicyOwner, direction)
+		keysFromFilter := filter.ToMapState(p.PolicyOwner, direction, nil)
 		for keyFromFilter, entry := range keysFromFilter {
 			// Fix up the proxy port for entries that need proxy redirection
 			if entry.IsRedirectEntry() {
@@ -188,7 +188,7 @@ func (p *EndpointPolicy) computeDirectionL4PolicyMapEntries(policyMapState MapSt
 					continue
 				}
 			}
-			policyMapState.DenyPreferredInsert(keyFromFilter, entry)
+			policyMapState.DenyPreferredInsert(keyFromFilter, entry, nil)
 		}
 	}
 }
