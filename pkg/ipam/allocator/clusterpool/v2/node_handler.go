@@ -57,19 +57,19 @@ func (n *NodeHandler) Update(resource *v2.CiliumNode) bool {
 	return n.upsertLocked(resource)
 }
 
-func (n *NodeHandler) Delete(nodeName string) {
+func (n *NodeHandler) Delete(resource *v2.CiliumNode) {
 	n.mutex.Lock()
 	defer n.mutex.Unlock()
 
-	err := n.poolManager.ReleaseNode(nodeName)
+	err := n.poolManager.ReleaseNode(resource.Name)
 	if err != nil {
-		log.WithField(logfields.NodeName, nodeName).
+		log.WithField(logfields.NodeName, resource.Name).
 			WithError(err).
 			Warning("Errors while release node and its CIDRs")
 	}
 
 	// Make sure any pending update controller is stopped
-	n.controllerManager.RemoveController(controllerName(nodeName))
+	n.controllerManager.RemoveController(controllerName(resource.Name))
 }
 
 func (n *NodeHandler) Resync(ctx context.Context, time time.Time) {

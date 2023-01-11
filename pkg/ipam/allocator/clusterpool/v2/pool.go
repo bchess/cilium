@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"net/netip"
 
-	"github.com/cilium/cilium/pkg/ipam"
+	"go4.org/netipx"
 
 	"github.com/cilium/cilium/pkg/ip"
-
+	"github.com/cilium/cilium/pkg/ipam"
 	"github.com/cilium/cilium/pkg/ipam/allocator/clusterpool/cidralloc"
 )
 
@@ -30,7 +30,11 @@ func allocFirstFreeCIDR(allocators []cidralloc.CIDRAllocator) (netip.Prefix, err
 			return netip.Prefix{}, err
 		}
 
-		return ip.IPNetToPrefix(ipnet), nil
+		prefix, ok := netipx.FromStdIPNet(ipnet)
+		if !ok {
+			return netip.Prefix{}, fmt.Errorf("invalid cidr %s allocated", ipnet)
+		}
+		return prefix, nil
 	}
 
 	return netip.Prefix{}, errPoolEmpty
@@ -50,13 +54,13 @@ func occupyCIDR(allocators []cidralloc.CIDRAllocator, cidr netip.Prefix) error {
 			return err
 		}
 		if allocated {
-			return fmt.Errorf("cidr %s has already been allocated", cidr.String())
+			return fmt.Errorf("cidr %s has already been allocated", cidr)
 		}
 
 		return alloc.Occupy(ipnet)
 	}
 
-	return fmt.Errorf("cidr %s is not part of the requested pool", cidr.String())
+	return fmt.Errorf("cidr %s is not part of the requested pool", cidr)
 }
 
 func releaseCIDR(allocators []cidralloc.CIDRAllocator, cidr netip.Prefix) error {
@@ -77,7 +81,7 @@ func releaseCIDR(allocators []cidralloc.CIDRAllocator, cidr netip.Prefix) error 
 		return alloc.Release(ipnet)
 	}
 
-	return fmt.Errorf("released cidr %s was not part the pool", cidr.String())
+	return fmt.Errorf("released cidr %s was not part the pool", cidr)
 }
 
 func (c *cidrPool) allocCIDR(family ipam.Family) (netip.Prefix, error) {
