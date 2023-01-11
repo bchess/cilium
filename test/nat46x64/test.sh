@@ -56,6 +56,7 @@ ethtool -K $LB_VETH_HOST rx off tx off
 docker exec kind-worker /bin/sh -c 'apt-get update && apt-get install -y nginx && systemctl start nginx'
 WORKER_IP6=$(docker exec kind-worker ip -o -6 a s eth0 | awk '{print $4}' | cut -d/ -f1 | head -n1)
 WORKER_IP4=$(docker exec kind-worker ip -o -4 a s eth0 | awk '{print $4}' | cut -d/ -f1 | head -n1)
+WORKER_MAC=$(docker exec kind-worker ip -o l show dev eth0 | grep -oP '(?<=link/ether )[^ ]+')
 
 kubectl -n kube-system rollout status ds/cilium --timeout=5m
 
@@ -82,6 +83,13 @@ fi
 
 LB_NODE_IP=$(docker exec kind-control-plane ip -o -4 a s eth0 | awk '{print $4}' | cut -d/ -f1 | head -n1)
 ip r a "${LB_VIP}/32" via "$LB_NODE_IP"
+#
+# Add the neighbor entry for the nginx node to avoid the LB failing to forward
+# the requests due to the FIB lookup drops (nsenter, as busybox iproute2
+# doesn't support neigh entries creation).
+CONTROL_PLANE_PID=$(docker inspect kind-control-plane -f '{{ .State.Pid }}')
+nsenter -t $CONTROL_PLANE_PID -n ip neigh add ${WORKER_IP4} dev eth0 lladdr ${WORKER_MAC}
+nsenter -t $CONTROL_PLANE_PID -n ip neigh add ${WORKER_IP6} dev eth0 lladdr ${WORKER_MAC}
 
 # Issue 10 requests to LB
 for i in $(seq 1 10); do
