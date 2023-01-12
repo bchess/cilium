@@ -48,6 +48,14 @@ func (a *Allocator) Init(ctx context.Context) error {
 		return fmt.Errorf("%s must not be set if IPv6 is disabled", operatorOption.ClusterPoolIPv6CIDR)
 	}
 
+	err := a.poolAlloc.AddPool("blue", []string{
+		"172.16.0.0/24",
+		"192.168.0.0/16",
+	}, 24, nil, 0)
+	if err != nil {
+		log.WithError(err).Fatal("failed to add pool")
+	}
+
 	return a.poolAlloc.AddPool("default", defaultIPv4CIDRs, defaultIPv4MaskSize, defaultIPv6CIDRs, defaultIPv6MaskSize)
 }
 
