@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func Test_NewCIDRSets(t *testing.T) {
+func TestNewCIDRSets(t *testing.T) {
 	type args struct {
 		isV6     bool
 		strCIDRs []string
