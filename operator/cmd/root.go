@@ -608,7 +608,7 @@ func (legacy *legacyOnLeader) onStart(_ hive.HookContext) error {
 		}
 	}
 
-	if option.Config.IPAM == ipamOption.IPAMClusterPool || option.Config.IPAM == ipamOption.IPAMClusterPoolV2 {
+	if option.Config.IPAM == ipamOption.IPAMClusterPool || option.Config.IPAM == ipamOption.IPAMClusterPoolV2 || option.Config.IPAM == ipamOption.IPAMClusterPoolV2Beta2 {
 		// We will use CiliumNodes as the source of truth for the podCIDRs.
 		// Once the CiliumNodes are synchronized with the operator we will
 		// be able to watch for K8s Node events which they will be used
