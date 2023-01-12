@@ -104,7 +104,7 @@ func (p *PoolAllocator) AddPool(poolName string, ipv4CIDRs []string, ipv4MaskSiz
 
 func (p *PoolAllocator) AllocateToNode(cn *v2.CiliumNode) error {
 	// We first need to check for CIDRs which we want to occupy, i.e. mark as
-	// allocated the node. This needs to happen before allocations, to avoid
+	// allocated to the node. This needs to happen before allocations, to avoid
 	// handing out the same CIDR twice.
 	var err error
 
@@ -244,7 +244,7 @@ func (p *PoolAllocator) markAllocated(targetNode, sourcePool string, cidr netip.
 		p.nodes[targetNode] = pools
 	}
 
-	cidrs := pools[sourcePool]
+	cidrs, ok := pools[sourcePool]
 	if !ok {
 		cidrs = cidrSets{
 			v4: cidrSet{},
@@ -267,7 +267,7 @@ func (p *PoolAllocator) markReleased(targetNode, sourcePool string, cidr netip.P
 		return
 	}
 
-	cidrs := pools[sourcePool]
+	cidrs, ok := pools[sourcePool]
 	if !ok {
 		return
 	}
