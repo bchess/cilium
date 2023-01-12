@@ -88,8 +88,12 @@ ip r a "${LB_VIP}/32" via "$LB_NODE_IP"
 # the requests due to the FIB lookup drops (nsenter, as busybox iproute2
 # doesn't support neigh entries creation).
 CONTROL_PLANE_PID=$(docker inspect kind-control-plane -f '{{ .State.Pid }}')
-nsenter -t $CONTROL_PLANE_PID -n ip neigh add ${WORKER_IP4} dev eth0 lladdr ${WORKER_MAC}
-nsenter -t $CONTROL_PLANE_PID -n ip neigh add ${WORKER_IP6} dev eth0 lladdr ${WORKER_MAC}
+nsenter -t $CONTROL_PLANE_PID -n ip -4 r
+nsenter -t $CONTROL_PLANE_PID -n ip -6 r
+nsenter -t $CONTROL_PLANE_PID -n ip -4 n
+nsenter -t $CONTROL_PLANE_PID -n ip -6 n
+nsenter -t $CONTROL_PLANE_PID -n ip neigh add ${WORKER_IP4} dev eth0 lladdr ${WORKER_MAC} || true
+nsenter -t $CONTROL_PLANE_PID -n ip neigh add ${WORKER_IP6} dev eth0 lladdr ${WORKER_MAC} || true
 
 # Issue 10 requests to LB
 for i in $(seq 1 10); do
