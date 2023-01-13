@@ -32,7 +32,7 @@ import (
 	"github.com/cilium/cilium/pkg/version"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute"
-	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2020-11-01/network"
+	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2022-01-01/network"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/Azure/go-autorest/autorest/azure"
@@ -388,7 +388,7 @@ func generateIpConfigName() string {
 func (c *Client) AssignPrivateIpAddressesVMSS(ctx context.Context, instanceID, vmssName, subnetID, interfaceName string, addresses int) error {
 	var netIfConfig *compute.VirtualMachineScaleSetNetworkConfiguration
 
-	result, err := c.vmss.Get(ctx, c.resourceGroup, vmssName, instanceID, compute.InstanceView)
+	result, err := c.vmss.Get(ctx, c.resourceGroup, vmssName, instanceID, compute.InstanceViewTypesInstanceView)
 	if err != nil {
 		return fmt.Errorf("failed to get VM %s from VMSS %s: %s", instanceID, vmssName, err)
 	}
@@ -422,7 +422,7 @@ func (c *Client) AssignPrivateIpAddressesVMSS(ctx context.Context, instanceID, v
 				Name: to.StringPtr(generateIpConfigName()),
 				VirtualMachineScaleSetIPConfigurationProperties: &compute.VirtualMachineScaleSetIPConfigurationProperties{
 					ApplicationSecurityGroups: appSecurityGroups,
-					PrivateIPAddressVersion:   compute.IPv4,
+					PrivateIPAddressVersion:   compute.IPVersionIPv4,
 					Subnet:                    &compute.APIEntityReference{ID: to.StringPtr(subnetID)},
 				},
 			},
@@ -465,7 +465,7 @@ func (c *Client) AssignPrivateIpAddressesVM(ctx context.Context, subnetID, inter
 			Name: to.StringPtr(generateIpConfigName()),
 			InterfaceIPConfigurationPropertiesFormat: &network.InterfaceIPConfigurationPropertiesFormat{
 				ApplicationSecurityGroups: appSecurityGroups,
-				PrivateIPAllocationMethod: network.IPAllocationMethodDynamic,
+				PrivateIPAllocationMethod: "Dynamic",
 				Subnet: &network.Subnet{
 					ID: to.StringPtr(subnetID),
 				},
