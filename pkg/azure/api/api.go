@@ -31,7 +31,7 @@ import (
 	"github.com/cilium/cilium/pkg/spanstat"
 	"github.com/cilium/cilium/pkg/version"
 
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2021-03-01/compute"
+	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2022-01-01/network"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/adal"
@@ -422,7 +422,7 @@ func (c *Client) AssignPrivateIpAddressesVMSS(ctx context.Context, instanceID, v
 				Name: to.StringPtr(generateIpConfigName()),
 				VirtualMachineScaleSetIPConfigurationProperties: &compute.VirtualMachineScaleSetIPConfigurationProperties{
 					ApplicationSecurityGroups: appSecurityGroups,
-					PrivateIPAddressVersion:   compute.IPVersionIPv4,
+					PrivateIPAddressVersion:   compute.IPv4,
 					Subnet:                    &compute.APIEntityReference{ID: to.StringPtr(subnetID)},
 				},
 			},
